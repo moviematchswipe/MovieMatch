@@ -8,6 +8,7 @@
 <meta name="description" content="Stop scrolling. MovieMatch uses swipe-based discovery to find movies and series on your streaming services in seconds.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 /* ── TOKENS ─────────────────────────────────────────── */
 :root {
@@ -836,8 +837,10 @@ body.series-mode .badge-genre{background:rgba(217,119,6,.14);color:#fbbf24;borde
       <div style="background:var(--surf2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--muted);margin-bottom:4px;">
         💡 <strong style="color:var(--text)">Tip:</strong> Use ← → arrow keys or A / D to swipe. Press Space to like, Backspace to undo.
       </div>
+      <p class="auth-signed-out" style="font-size:12px;color:var(--dim);margin:10px 0 4px;">You can swipe as a guest, but create a free account so your list and preferences are saved for next time.</p>
       <div class="ob-footer">
         <button class="btn btn-ghost" onclick="nextStep(4)">← Back</button>
+        <button class="btn btn-outline auth-signed-out" onclick="setLoginMode('signup');openModal('modal-login')">Create account</button>
         <button class="btn btn-primary btn-lg" onclick="showPage('page-swipe')">Start swiping →</button>
       </div>
     </div>
@@ -1322,13 +1325,14 @@ body.series-mode .badge-genre{background:rgba(217,119,6,.14);color:#fbbf24;borde
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-login')" aria-label="Close">✕</button>
     <h2 id="login-title">Welcome back</h2>
-    <p>Sign in to access your saved watchlist and preferences.</p>
+    <p id="login-sub">Sign in to access your saved watchlist and preferences.</p>
     <div class="form-field"><label for="login-email">Email</label><input type="email" id="login-email" placeholder="you@example.com" autocomplete="email"></div>
     <div class="form-field"><label for="login-pw">Password</label><input type="password" id="login-pw" placeholder="••••••••" autocomplete="current-password"></div>
-    <button class="btn btn-primary btn-full" style="padding:12px;margin-bottom:12px;" onclick="signIn()">Sign in →</button>
+    <p id="login-error" style="display:none;color:#f87171;font-size:12px;margin:-6px 0 12px;"></p>
+    <button class="btn btn-primary btn-full" id="login-submit-btn" style="padding:12px;margin-bottom:12px;" onclick="signIn()">Sign in →</button>
     <button class="btn btn-ghost btn-full" style="padding:12px;margin-bottom:14px;" onclick="toast('Google sign-in coming soon!')">Continue with Google</button>
-    <p style="font-size:12px;color:var(--dim);text-align:center;">No account? <button style="background:none;border:none;color:var(--acc);cursor:pointer;font-size:12px;font-family:inherit;padding:0;" onclick="closeModal('modal-login');showPage('page-onboard')">Get started free →</button></p>
-    <p style="font-size:12px;color:var(--dim);text-align:center;margin-top:6px;"><button style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:12px;font-family:inherit;padding:0;" onclick="toast('Password reset email sent!')">Forgot password?</button></p>
+    <p id="login-toggle-row" style="font-size:12px;color:var(--dim);text-align:center;">No account? <button style="background:none;border:none;color:var(--acc);cursor:pointer;font-size:12px;font-family:inherit;padding:0;" onclick="setLoginMode('signup')">Create one →</button></p>
+    <p style="font-size:12px;color:var(--dim);text-align:center;margin-top:6px;"><button style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:12px;font-family:inherit;padding:0;" onclick="sendPasswordReset()">Forgot password?</button></p>
   </div>
 </div>
 
@@ -1570,12 +1574,19 @@ const IN_THEATERS = [
 // ════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════
+// ════════════════════════════════════════
+// SUPABASE CLIENT
+// ════════════════════════════════════════
+const SUPABASE_URL = 'https://ixhexvmlpccjtzfygcjp.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_rrzNTFra6ONXjqi62oqJyQ_O6Zc5wd_';
+const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 const S = {
   mode:'movie', isPremium:false, billing:'monthly',
   services:new Set(), genres:new Set(), moods:new Set(), types:new Set(),
   liked:[], saved:[], skipped:[], history:[],
   idx:0, endSearchesLeft:3, step:1,
-  isSignedIn:false,
+  isSignedIn:false, userId:null,
   profile:{name:'', avatar:'🎬', color:'#2563EB'}
 };
 
@@ -1712,23 +1723,130 @@ function setBilling(period){
 // ════════════════════════════════════════
 const AVATAR_OPTIONS=['🎬','🍿','👾','🦊','🐧','🐲','🦸','🧙','🤖','👻','🎭','🌟','🐱','🦁','🎮','🍕'];
 const AVATAR_COLORS=['#2563EB','#dc2626','#16a34a','#d97706','#9333ea','#0891b2','#db2777','#65a30d'];
-function signIn(){
-  const emailEl=document.getElementById('login-email');
-  const email=emailEl?emailEl.value.trim():'';
-  S.isSignedIn=true;
-  if(!S.profile.name) S.profile.name=email?email.split('@')[0]:'Movie Fan';
-  closeModal('modal-login');
-  showPage('page-landing');
-  updateAuthUI();
-  toast(`👋 Welcome back, ${S.profile.name}!`);
+
+let loginMode='signin'; // 'signin' | 'signup'
+function setLoginMode(mode){
+  loginMode=mode;
+  const title=document.getElementById('login-title');
+  const sub=document.getElementById('login-sub');
+  const btn=document.getElementById('login-submit-btn');
+  const toggleRow=document.getElementById('login-toggle-row');
+  if(mode==='signup'){
+    title.textContent='Create your account';
+    sub.textContent='Save your list and preferences across every device.';
+    btn.textContent='Create account →';
+    btn.setAttribute('onclick','signUp()');
+    toggleRow.innerHTML=`Already have an account? <button style="background:none;border:none;color:var(--acc);cursor:pointer;font-size:12px;font-family:inherit;padding:0;" onclick="setLoginMode('signin')">Sign in →</button>`;
+  } else {
+    title.textContent='Welcome back';
+    sub.textContent='Sign in to access your saved watchlist and preferences.';
+    btn.textContent='Sign in →';
+    btn.setAttribute('onclick','signIn()');
+    toggleRow.innerHTML=`No account? <button style="background:none;border:none;color:var(--acc);cursor:pointer;font-size:12px;font-family:inherit;padding:0;" onclick="setLoginMode('signup')">Create one →</button>`;
+  }
+  document.getElementById('login-error').style.display='none';
 }
-function signOut(){
+function showLoginError(msg){
+  const el=document.getElementById('login-error');
+  el.textContent=msg;
+  el.style.display='block';
+}
+async function signUp(){
+  const email=document.getElementById('login-email').value.trim();
+  const pw=document.getElementById('login-pw').value;
+  if(!email||!pw){showLoginError('Enter an email and password.');return;}
+  if(pw.length<6){showLoginError('Password must be at least 6 characters.');return;}
+  const btn=document.getElementById('login-submit-btn');
+  btn.textContent='Creating account…';btn.disabled=true;
+  const {data,error}=await sbClient.auth.signUp({email,password:pw});
+  btn.disabled=false;btn.textContent='Create account →';
+  if(error){showLoginError(error.message);return;}
+  if(data.user && !data.session){
+    closeModal('modal-login');
+    toast('📧 Check your email to confirm your account');
+    return;
+  }
+  await onAuthSuccess(data.user);
+}
+async function signIn(){
+  const email=document.getElementById('login-email').value.trim();
+  const pw=document.getElementById('login-pw').value;
+  if(!email||!pw){showLoginError('Enter your email and password.');return;}
+  const btn=document.getElementById('login-submit-btn');
+  btn.textContent='Signing in…';btn.disabled=true;
+  const {data,error}=await sbClient.auth.signInWithPassword({email,password:pw});
+  btn.disabled=false;btn.textContent='Sign in →';
+  if(error){showLoginError(error.message);return;}
+  await onAuthSuccess(data.user);
+}
+async function onAuthSuccess(user){
+  S.isSignedIn=true;
+  S.userId=user.id;
+  closeModal('modal-login');
+  document.getElementById('login-email').value='';
+  document.getElementById('login-pw').value='';
+  await loadUserData();
+  updateAuthUI();
+  toast(`👋 Welcome, ${S.profile.name||'Movie Fan'}!`);
+}
+async function loadUserData(){
+  if(!S.userId)return;
+  const {data:profile}=await sbClient.from('profiles').select('*').eq('id',S.userId).maybeSingle();
+  if(profile){
+    S.profile.name=profile.name||'';
+    S.profile.avatar=profile.avatar||'🎬';
+    S.profile.color=profile.color||'#2563EB';
+    S.isPremium=!!profile.is_premium;
+    S.endSearchesLeft=profile.end_searches_left??3;
+  }
+  const {data:titles}=await sbClient.from('user_titles').select('*').eq('user_id',S.userId);
+  if(titles){
+    const basePool=[...MOVIES,...SERIES];
+    const findByTmdb=(tid,title)=>basePool.find(x=>x.tmdbId===tid)||basePool.find(x=>x.title===title);
+    S.liked=titles.filter(t=>t.status==='liked').map(t=>findByTmdb(t.tmdb_id,t.title)).filter(Boolean);
+    S.saved=titles.filter(t=>t.status==='saved').map(t=>findByTmdb(t.tmdb_id,t.title)).filter(Boolean);
+    S.skipped=titles.filter(t=>t.status==='skipped').map(t=>findByTmdb(t.tmdb_id,t.title)).filter(Boolean);
+  }
+  if(typeof updateStats==='function')updateStats();
+}
+async function saveTitleStatus(m,status){
+  if(!S.userId)return; // guest mode — stays local only, as before
+  try{
+    await sbClient.from('user_titles').upsert({
+      user_id:S.userId,
+      tmdb_id:m.tmdbId||0,
+      title:m.title,
+      media_type:m.seasons!==undefined?'series':'movie',
+      status
+    },{onConflict:'user_id,tmdb_id,media_type'});
+  }catch(e){ /* non-fatal — local state already updated, this is best-effort sync */ }
+}
+async function signOut(){
+  await sbClient.auth.signOut();
   S.isSignedIn=false;
+  S.userId=null;
+  S.liked=[];S.saved=[];S.skipped=[];
   closeModal('modal-profile-menu');
   showPage('page-landing');
   updateAuthUI();
+  if(typeof updateStats==='function')updateStats();
   toast('Signed out');
 }
+async function sendPasswordReset(){
+  const email=document.getElementById('login-email').value.trim();
+  if(!email){showLoginError('Enter your email above first, then click "Forgot password?"');return;}
+  const {error}=await sbClient.auth.resetPasswordForEmail(email);
+  if(error){showLoginError(error.message);return;}
+  toast('📧 Password reset email sent');
+}
+// Restore session on page load if the user was already signed in
+sbClient.auth.getSession().then(({data:{session}})=>{
+  if(session?.user){
+    S.isSignedIn=true;
+    S.userId=session.user.id;
+    loadUserData().then(updateAuthUI);
+  }
+});
 function updateAuthUI(){
   document.querySelectorAll('.auth-signed-out').forEach(el=>el.style.display=S.isSignedIn?'none':'');
   document.querySelectorAll('.auth-signed-in').forEach(el=>el.style.display=S.isSignedIn?'flex':'none');
@@ -1766,10 +1884,17 @@ function selectColor(c){
   S.profile.color=c;
   renderAvatarPicker();
 }
-function saveProfile(){
+async function saveProfile(){
   const nameEl=document.getElementById('profile-name-input');
   S.profile.name=nameEl.value.trim()||'Movie Fan';
   updateAuthUI();
+  if(S.userId){
+    try{
+      await sbClient.from('profiles').update({
+        name:S.profile.name, avatar:S.profile.avatar, color:S.profile.color
+      }).eq('id',S.userId);
+    }catch(e){ /* non-fatal — local state already updated */ }
+  }
   toast('✓ Profile saved');
   showPage('page-landing');
 }
@@ -2068,13 +2193,16 @@ function doSwipe(action){
     if(front)front.classList.add('sw-r');
     S.liked.push(m);
     toast(`♥ Added "${m.title}" to your list`);
+    saveTitleStatus(m,'liked');
   } else if(action==='save'){
     if(front)front.classList.add('sw-r');
     S.saved.push(m);
     toast(`🔖 Saved "${m.title}" for later`);
+    saveTitleStatus(m,'saved');
   } else {
     if(front)front.classList.add('sw-l');
     S.skipped.push(m);
+    saveTitleStatus(m,'skipped');
   }
   setTimeout(()=>{S.idx++;renderCards();updateStats();},300);
 }
@@ -2369,6 +2497,7 @@ function quickAddToList(title){
   if(!S.liked.includes(m)) S.liked.push(m);
   updateStats();
   toast(`♥ Added "${m.title}" to your list`);
+  saveTitleStatus(m,'liked');
 }
 function showWhereToWatch(title){
   const m=findTitle(title);
