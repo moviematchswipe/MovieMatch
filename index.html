@@ -624,7 +624,7 @@ body.series-mode .badge-genre{background:rgba(217,119,6,.14);color:#fbbf24;borde
           <div class="price-card featured" role="listitem">
             <div class="price-badge">ONE PLAN. EVERYTHING.</div>
             <div class="price-name">Premium</div>
-            <div class="price-amt" id="price-amt-display"><sup>$</sup>3</div>
+            <div class="price-amt" id="price-amt-display"><sup>$</sup>3.99</div>
             <div class="price-period" id="price-period-display">Per month · cancel anytime</div>
             <ul class="price-features" aria-label="Premium plan features">
               <li>Unlimited swipes &amp; end searches</li>
@@ -643,7 +643,7 @@ body.series-mode .badge-genre{background:rgba(217,119,6,.14);color:#fbbf24;borde
               <li>MovieMatch Wrapped — monthly &amp; yearly recap</li>
               <li>Early access to new features</li>
             </ul>
-            <button class="btn btn-primary btn-full" onclick="openModal('modal-upgrade')" id="price-cta">Get Premium →</button>
+            <button class="btn btn-primary btn-full" onclick="goToCheckout()" id="price-cta">Get Premium →</button>
             <p style="font-size:11px;color:var(--dim);text-align:center;margin-top:10px;" id="price-fineprint">Cancel anytime · same features whichever you choose</p>
           </div>
         </div>
@@ -1286,16 +1286,16 @@ body.series-mode .badge-genre{background:rgba(217,119,6,.14);color:#fbbf24;borde
     <div style="display:flex;gap:10px;margin-bottom:18px;">
       <div class="plan-opt on" id="modal-bill-monthly" style="flex:1;background:var(--acc-s);border:1px solid var(--acc-b);border-radius:10px;padding:14px 16px;text-align:center;cursor:pointer;" onclick="setBilling('monthly')">
         <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Monthly</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--acc);">$3<span style="font-size:13px;font-family:'Inter',sans-serif;color:var(--muted)">/mo</span></div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--acc);">$3.99<span style="font-size:13px;font-family:'Inter',sans-serif;color:var(--muted)">/mo</span></div>
       </div>
       <div class="plan-opt" id="modal-bill-yearly" style="flex:1;background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;text-align:center;cursor:pointer;position:relative;" onclick="setBilling('yearly')">
-        <div style="position:absolute;top:-9px;right:8px;background:var(--green);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;">SAVE 44%</div>
+        <div style="position:absolute;top:-9px;right:8px;background:var(--green);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;">SAVE 37%</div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Yearly</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--text);">$20<span style="font-size:13px;font-family:'Inter',sans-serif;color:var(--muted)">/yr</span></div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--text);">$29.99<span style="font-size:13px;font-family:'Inter',sans-serif;color:var(--muted)">/yr</span></div>
       </div>
     </div>
-    <button class="btn btn-primary btn-full btn-lg" id="upgrade-cta" onclick="closeModal('modal-upgrade');toast('Payment integration coming soon!')">Get Premium for $3/month →</button>
-    <p style="font-size:12px;color:var(--dim);text-align:center;margin-top:10px;" id="upgrade-terms">Billed monthly · cancel anytime</p>
+    <button class="btn btn-primary btn-full btn-lg" id="upgrade-cta" onclick="goToCheckout()">Get Premium for $3.99/month →</button>
+    <p style="font-size:12px;color:var(--dim);text-align:center;margin-top:10px;" id="upgrade-terms">Billed monthly · cancel anytime · secure checkout by Stripe</p>
     <div style="margin-top:18px;border-top:1px solid var(--border);padding-top:16px;">
       <button id="promo-toggle-btn" style="background:none;border:none;color:var(--acc);cursor:pointer;font-size:13px;font-family:inherit;padding:0;display:flex;align-items:center;gap:5px;" onclick="togglePromoField()">🏷 Have a promo code?</button>
       <div id="promo-field-wrap" style="display:none;margin-top:10px;">
@@ -1575,8 +1575,17 @@ const IN_THEATERS = [
 // STATE
 // ════════════════════════════════════════
 // ════════════════════════════════════════
-// SUPABASE CLIENT
+// STRIPE PAYMENT LINKS
 // ════════════════════════════════════════
+const STRIPE_MONTHLY_LINK = 'https://buy.stripe.com/test_8x200c4OB3Cu8233NhdnW00';
+const STRIPE_YEARLY_LINK  = 'https://buy.stripe.com/test_4gM9AM4OBa0SaabdnRdnW01';
+function goToCheckout(){
+  const link = S.billing === 'yearly' ? STRIPE_YEARLY_LINK : STRIPE_MONTHLY_LINK;
+  // Append user email so Stripe pre-fills the checkout form
+  const email = S.profile.name ? '' : '';
+  window.open(link, '_blank', 'noopener');
+  closeModal('modal-upgrade');
+}
 const SUPABASE_URL = 'https://ixhexvmlpccjtzfygcjp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_rrzNTFra6ONXjqi62oqJyQ_O6Zc5wd_';
 const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -1695,15 +1704,23 @@ function setBilling(period){
   const cta=document.getElementById('price-cta');
   const fine=document.getElementById('price-fineprint');
   if(period==='yearly'){
-    if(amt) amt.innerHTML='<sup>$</sup>20';
+    if(amt) amt.innerHTML='<sup>$</sup>29.99';
     if(per) per.textContent='Per year · cancel anytime';
-    if(cta) cta.textContent='Get Premium for $20/year →';
-    if(fine) fine.textContent='Works out to $1.67/month · same features as monthly';
+    if(cta) cta.textContent='Get Premium for $29.99/year →';
+    if(fine) fine.textContent='Works out to $2.50/month · same features as monthly';
+    const upgradeCta=document.getElementById('upgrade-cta');
+    if(upgradeCta) upgradeCta.textContent='Get Premium for $29.99/year →';
+    const upgradeTerms=document.getElementById('upgrade-terms');
+    if(upgradeTerms) upgradeTerms.textContent='Billed yearly · cancel anytime · secure checkout by Stripe';
   } else {
-    if(amt) amt.innerHTML='<sup>$</sup>3';
+    if(amt) amt.innerHTML='<sup>$</sup>3.99';
     if(per) per.textContent='Per month · cancel anytime';
-    if(cta) cta.textContent='Get Premium for $3/month →';
+    if(cta) cta.textContent='Get Premium for $3.99/month →';
     if(fine) fine.textContent='Cancel anytime · same features whichever you choose';
+    const upgradeCta=document.getElementById('upgrade-cta');
+    if(upgradeCta) upgradeCta.textContent='Get Premium for $3.99/month →';
+    const upgradeTerms=document.getElementById('upgrade-terms');
+    if(upgradeTerms) upgradeTerms.textContent='Billed monthly · cancel anytime · secure checkout by Stripe';
   }
   // sync modal if open
   const modalMonthly=document.getElementById('modal-bill-monthly');
