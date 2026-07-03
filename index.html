@@ -718,15 +718,15 @@ body.series-mode .badge-genre{background:rgba(217,119,6,.14);color:#fbbf24;borde
           <div class="footer-links">
             <button onclick="openModal('modal-faq')">FAQ</button>
             <button onclick="openModal('modal-contact')">Contact us</button>
-            <a href="#">Privacy policy</a>
-            <a href="#">Terms of service</a>
+            <button onclick="openModal('modal-privacy')">Privacy policy</button>
+            <button onclick="openModal('modal-tos')">Terms of service</button>
             <a href="#">Accessibility</a>
           </div>
         </div>
       </div>
       <div class="footer-bottom">
         <a href="#" class="logo" style="font-size:17px;" onclick="showPage('page-landing');return false;"><span class="mm-badge" style="width:24px;height:24px;" aria-hidden="true"></span>MOVIEMATCH</a>
-        <p style="font-size:12px;color:var(--dim);">© 2025 MovieMatch · Built to end the scroll.</p>
+        <p style="font-size:12px;color:var(--dim);">© 2026 MovieMatch · Operated by Cadyn Chirnside · <button style="background:none;border:none;color:var(--dim);font-size:12px;cursor:pointer;font-family:inherit;padding:0;" onclick="openModal('modal-tos')">Terms</button> · <button style="background:none;border:none;color:var(--dim);font-size:12px;cursor:pointer;font-family:inherit;padding:0;" onclick="openModal('modal-privacy')">Privacy</button></p>
         <div style="display:flex;gap:14px;">
           <button class="footer-links" style="color:var(--dim);font-size:12px;background:none;border:none;cursor:pointer;" onclick="openModal('modal-contact')">Contact</button>
           <button class="footer-links" style="color:var(--dim);font-size:12px;background:none;border:none;cursor:pointer;" onclick="openModal('modal-faq')">FAQ</button>
@@ -1465,6 +1465,66 @@ body.series-mode .badge-genre{background:rgba(217,119,6,.14);color:#fbbf24;borde
     <button class="modal-close" onclick="closeModal('modal-faq')" aria-label="Close">✕</button>
     <h2 id="faq-title">Frequently asked questions</h2>
     <div style="margin-top:14px;" id="faq-list"></div>
+  </div>
+</div>
+
+<!-- TERMS OF SERVICE -->
+<div class="modal-overlay" id="modal-tos" role="dialog" aria-modal="true" aria-labelledby="tos-title">
+  <div class="modal" style="max-width:680px;max-height:80vh;overflow-y:auto;">
+    <button class="modal-close" onclick="closeModal('modal-tos')" aria-label="Close">✕</button>
+    <p class="sec-eye">Legal</p>
+    <h2 id="tos-title" style="margin-bottom:4px;">Terms of Service</h2>
+    <p style="font-size:12px;color:var(--dim);margin-bottom:20px;">Effective date: July 3, 2026 · Operated by Cadyn Chirnside trading as MovieMatch</p>
+    <div style="font-size:13px;color:var(--muted);line-height:1.7;">
+      <p style="margin-bottom:12px;">By using MovieMatch you agree to these terms. If you don't agree, please don't use the service.</p>
+      <strong style="color:var(--text);">1. What MovieMatch is</strong>
+      <p style="margin-bottom:12px;">MovieMatch is a mood-based discovery tool that helps you find movies and series to watch on your existing streaming services. We don't host or stream any content ourselves.</p>
+      <strong style="color:var(--text);">2. Your account</strong>
+      <p style="margin-bottom:12px;">You must be 13 or older to use MovieMatch. Users under 18 need parental consent. Keep your login details secure — you're responsible for activity on your account.</p>
+      <strong style="color:var(--text);">3. Parental controls</strong>
+      <p style="margin-bottom:12px;">Premium subscribers can set PIN-protected age-rating filters and verify a parental email address. Parents remain responsible for supervising their children's use of the service.</p>
+      <strong style="color:var(--text);">4. Premium subscriptions</strong>
+      <p style="margin-bottom:12px;">Premium costs $3.99/month or $29.99/year, billed via Stripe. You can cancel anytime — cancellation takes effect at the end of your billing period. No partial refunds for unused time. We'll give 30 days' notice of any price changes.</p>
+      <strong style="color:var(--text);">5. What you can't do</strong>
+      <p style="margin-bottom:12px;">Don't use MovieMatch illegally, try to hack it, scrape its content, or impersonate anyone. Violations may result in account termination.</p>
+      <strong style="color:var(--text);">6. Our content</strong>
+      <p style="margin-bottom:12px;">The MovieMatch name, logo, and design belong to Cadyn Chirnside trading as MovieMatch. Movie data is sourced from licensed third-party providers and belongs to their respective owners.</p>
+      <strong style="color:var(--text);">7. Disclaimers</strong>
+      <p style="margin-bottom:12px;">MovieMatch is provided "as is." We can't guarantee it'll always be available or error-free. Streaming availability info may not always be up to date — check the streaming service directly.</p>
+      <strong style="color:var(--text);">8. Governing law</strong>
+      <p style="margin-bottom:12px;">These terms are governed by South African law. You may also have rights under the laws of your own country.</p>
+      <strong style="color:var(--text);">9. Contact</strong>
+      <p style="margin-bottom:4px;">Questions? Email us at your MovieMatch email address or visit <span style="color:var(--acc);">moviematchofficial.netlify.app</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- PRIVACY POLICY -->
+<div class="modal-overlay" id="modal-privacy" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
+  <div class="modal" style="max-width:680px;max-height:80vh;overflow-y:auto;">
+    <button class="modal-close" onclick="closeModal('modal-privacy')" aria-label="Close">✕</button>
+    <p class="sec-eye">Legal</p>
+    <h2 id="privacy-title" style="margin-bottom:4px;">Privacy Policy</h2>
+    <p style="font-size:12px;color:var(--dim);margin-bottom:20px;">Effective date: July 3, 2026 · Operated by Cadyn Chirnside trading as MovieMatch</p>
+    <div style="font-size:13px;color:var(--muted);line-height:1.7;">
+      <p style="margin-bottom:12px;">We take your privacy seriously. This policy explains what we collect, why, and how we protect it.</p>
+      <strong style="color:var(--text);">What we collect</strong>
+      <p style="margin-bottom:12px;">When you create an account: your email and password (hashed, never stored in plain text), your name and profile details, and your parental email if you set up parental controls. When you use the app: your swipe history, preferences, and watchlist. Payment info goes directly to Stripe — we never see your card details. If you sign in with Google, we receive your name, email, and profile photo from Google.</p>
+      <strong style="color:var(--text);">Why we collect it</strong>
+      <p style="margin-bottom:12px;">To run your account, personalise your recommendations, process subscription payments, and send you account-related emails. We don't sell your data. We don't use it for advertising.</p>
+      <strong style="color:var(--text);">Who we share it with</strong>
+      <p style="margin-bottom:12px;">Supabase (our database provider), Stripe (payments), and Google (if you use Google sign-in). No one else, unless required by law.</p>
+      <strong style="color:var(--text);">Children's privacy</strong>
+      <p style="margin-bottom:12px;">MovieMatch is for users 13 and older. We don't knowingly collect data from children under 13. If you believe a child under 13 has an account, contact us and we'll delete it immediately.</p>
+      <strong style="color:var(--text);">Your rights</strong>
+      <p style="margin-bottom:12px;">You can request access to your data, ask us to correct or delete it, or export it at any time. South African users have rights under POPIA. EU users have rights under GDPR. Contact us to exercise any of these.</p>
+      <strong style="color:var(--text);">Security</strong>
+      <p style="margin-bottom:12px;">We use encrypted storage, HTTPS, and row-level security so users can only ever access their own data. Passwords are hashed and never stored in readable form.</p>
+      <strong style="color:var(--text);">Data retention</strong>
+      <p style="margin-bottom:12px;">We keep your data while your account is active. If you delete your account, your personal data is removed within 30 days (financial records kept for up to 7 years as required by law).</p>
+      <strong style="color:var(--text);">Contact &amp; complaints</strong>
+      <p style="margin-bottom:4px;">Email us at your MovieMatch email address. If you're in South Africa and not satisfied with our response, you can contact the Information Regulator at <span style="color:var(--acc);">inforegulator.org.za</span>.</p>
+    </div>
   </div>
 </div>
 
