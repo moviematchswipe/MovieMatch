@@ -760,8 +760,11 @@ body.series-mode .badge-genre{background:rgba(217,119,6,.14);color:#fbbf24;borde
     <!-- STEP 1: SERVICES -->
     <div class="ob-step active" id="ob-1">
       <p class="ob-badge">Step 1 of 5 — Services</p>
-      <h2 class="ob-q">What are you subscribed to?</h2>
-      <p class="ob-hint">Select every service you have access to. Free plan supports up to 2 — <button style="background:none;border:none;color:var(--acc);cursor:pointer;font-size:14px;font-family:inherit;padding:0;" onclick="openModal('modal-upgrade')">upgrade for all</button>.</p>
+      <h2 class="ob-q">Where are you watching from?</h2>
+      <p class="ob-hint">Your country affects which streaming services and titles are available to you.</p>
+      <div class="form-field" style="margin-bottom:24px;"><label for="ob-country-select" style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px;">Your country</label><select id="ob-country-select" onchange="onCountryChange(this.value)" style="background:var(--surf2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;width:100%;max-width:320px;"></select></div>
+      <h3 style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;margin-bottom:8px;">What are you subscribed to?</h3>
+      <p style="font-size:14px;color:var(--muted);margin-bottom:16px;">Select every service you have access to. Free plan supports up to 2 — <button style="background:none;border:none;color:var(--acc);cursor:pointer;font-size:14px;font-family:inherit;padding:0;" onclick="openModal('modal-upgrade')">upgrade for all</button>.</p>
       <div id="svc-nudge" style="display:none;" class="nudge" role="alert"><span><strong>🔒 Free limit reached</strong> — max 2 services on free plan.</span><button class="nudge-btn" onclick="openModal('modal-upgrade')">Upgrade $3/mo</button></div>
       <p class="subsec">Subscription streaming</p><div class="pill-group" id="s-sub"></div>
       <p class="subsec">Free &amp; ad-supported</p><div class="pill-group" id="s-free"></div>
@@ -1158,8 +1161,9 @@ body.series-mode .badge-genre{background:rgba(217,119,6,.14);color:#fbbf24;borde
     <div class="profile-preview-avatar" id="profile-preview-avatar">🎬</div>
     <p style="text-align:center;font-size:12px;color:var(--dim);margin-bottom:28px;">This is what friends will see when you use Match With Friends</p>
     <div class="form-field"><label for="profile-name-input">Display name</label><input type="text" id="profile-name-input" placeholder="What should friends call you?" maxlength="20"></div>
+    <div class="form-field"><label for="profile-country-select">Your country <span style="font-size:11px;color:var(--dim);font-weight:400;">— affects streaming availability shown</span></label><select id="profile-country-select" onchange="onCountryChange(this.value)" style="background:var(--surf2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;width:100%;"></select></div>
     <p class="subsec">Pick a character</p>
-    <div id="avatar-grid" style="display:grid;grid-template-columns:repeat(8,1fr);gap:10px;margin-bottom:24px;" role="list" aria-label="Avatar options"></div>
+    <div id="avatar-grid" style="margin-bottom:24px;" role="list" aria-label="Avatar options"></div>
     <p class="subsec">Pick a color</p>
     <div id="color-grid" style="display:flex;gap:10px;margin-bottom:30px;flex-wrap:wrap;" role="list" aria-label="Color options"></div>
     <button class="btn btn-primary btn-full btn-lg" onclick="saveProfile()">Save profile →</button>
@@ -1261,6 +1265,32 @@ body.series-mode .badge-genre{background:rgba(217,119,6,.14);color:#fbbf24;borde
     <h2 class="sec-title" style="margin-bottom:8px;">IN THEATERS</h2>
     <p style="color:var(--muted);font-size:14px;margin-bottom:24px;">Currently playing on the big screen — not on a streaming service yet, but worth saving for later.</p>
     <div class="trend-grid" id="in-theaters-grid" role="list"></div>
+  </div>
+
+  <!-- AIRLINE TEASER -->
+  <div class="section" style="max-width:1100px;padding-top:0;">
+    <div style="background:linear-gradient(135deg,var(--surf2) 0%,rgba(37,99,235,.08) 100%);border:1px solid var(--acc-b);border-radius:20px;padding:36px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-20px;right:-20px;font-size:120px;opacity:.06;pointer-events:none;" aria-hidden="true">✈️</div>
+      <div style="display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:240px;">
+          <p style="font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin-bottom:8px;">✈️ Coming Soon · Premium</p>
+          <h3 style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;margin-bottom:10px;">IN-FLIGHT ENTERTAINMENT</h3>
+          <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:18px;">Flying soon? Select your airline and swipe through exactly what will be available on your flight — so you know what to watch before you even board. Available on partner airlines.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="openModal('modal-upgrade')" style="font-size:13px;">🔒 Unlock with Premium</button>
+            <button class="btn btn-ghost" style="font-size:13px;" onclick="toast('✈️ We\'ll notify you when airline partners go live!')">Notify me →</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;min-width:200px;">
+          ${['✈️ Emirates','✈️ Qatar Airways','✈️ SAA','✈️ British Airways','✈️ Lufthansa'].map(a=>`
+            <div style="background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;filter:blur(2px);pointer-events:none;opacity:.7;">
+              <span style="font-size:13px;font-weight:500;">${a}</span>
+              <span style="font-size:11px;color:var(--acc);">Partner</span>
+            </div>`).join('')}
+          <p style="font-size:11px;color:var(--dim);text-align:center;">More airlines coming soon</p>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1659,6 +1689,7 @@ const S = {
   liked:[], saved:[], skipped:[], history:[],
   idx:0, endSearchesLeft:3, step:1,
   isSignedIn:false, userId:null,
+  country:'ZA',
   profile:{name:'', avatar:'🎬', color:'#2563EB'}
 };
 
@@ -1801,7 +1832,60 @@ function setBilling(period){
 // ════════════════════════════════════════
 // AUTH / PROFILE
 // ════════════════════════════════════════
-const AVATAR_OPTIONS=['🎬','🍿','👾','🦊','🐧','🐲','🦸','🧙','🤖','👻','🎭','🌟','🐱','🦁','🎮','🍕'];
+const AVATAR_OPTIONS=[
+  // Cinema & Film
+  {icon:'🎬',label:'Director'},{icon:'🍿',label:'Popcorn'},{icon:'🎭',label:'Theatre'},
+  {icon:'🎞️',label:'Film Reel'},{icon:'📽️',label:'Projector'},{icon:'🎟️',label:'Ticket'},
+  {icon:'🏆',label:'Award'},{icon:'🎦',label:'Cinema'},
+  // Characters & Heroes
+  {icon:'🦸',label:'Hero'},{icon:'🧙',label:'Wizard'},{icon:'🕵️',label:'Detective'},
+  {icon:'🧛',label:'Vampire'},{icon:'🤖',label:'Robot'},{icon:'👻',label:'Ghost'},
+  {icon:'🥷',label:'Ninja'},{icon:'🧟',label:'Zombie'},
+  // Space & Sci-Fi
+  {icon:'🚀',label:'Astronaut'},{icon:'🌌',label:'Galaxy'},{icon:'👽',label:'Alien'},
+  {icon:'🛸',label:'UFO'},{icon:'⚡',label:'Lightning'},{icon:'🌟',label:'Star'},
+  // Animals
+  {icon:'🦁',label:'Lion'},{icon:'🐲',label:'Dragon'},{icon:'🦊',label:'Fox'},
+  {icon:'🐧',label:'Penguin'},{icon:'🐱',label:'Cat'},{icon:'🦅',label:'Eagle'},
+  {icon:'🐺',label:'Wolf'},{icon:'🦋',label:'Butterfly'},
+  // Fun & Lifestyle
+  {icon:'🎮',label:'Gamer'},{icon:'👾',label:'Arcade'},{icon:'🍕',label:'Pizza'},
+  {icon:'☕',label:'Coffee'},{icon:'🎵',label:'Music'},{icon:'🌙',label:'Night Owl'},
+];
+
+const COUNTRIES=[
+  {code:'ZA',name:'South Africa',flag:'🇿🇦'},
+  {code:'US',name:'United States',flag:'🇺🇸'},
+  {code:'GB',name:'United Kingdom',flag:'🇬🇧'},
+  {code:'AU',name:'Australia',flag:'🇦🇺'},
+  {code:'CA',name:'Canada',flag:'🇨🇦'},
+  {code:'NG',name:'Nigeria',flag:'🇳🇬'},
+  {code:'KE',name:'Kenya',flag:'🇰🇪'},
+  {code:'GH',name:'Ghana',flag:'🇬🇭'},
+  {code:'DE',name:'Germany',flag:'🇩🇪'},
+  {code:'FR',name:'France',flag:'🇫🇷'},
+  {code:'NL',name:'Netherlands',flag:'🇳🇱'},
+  {code:'IN',name:'India',flag:'🇮🇳'},
+  {code:'BR',name:'Brazil',flag:'🇧🇷'},
+  {code:'MX',name:'Mexico',flag:'🇲🇽'},
+  {code:'JP',name:'Japan',flag:'🇯🇵'},
+  {code:'KR',name:'South Korea',flag:'🇰🇷'},
+  {code:'SG',name:'Singapore',flag:'🇸🇬'},
+  {code:'NZ',name:'New Zealand',flag:'🇳🇿'},
+  {code:'IE',name:'Ireland',flag:'🇮🇪'},
+  {code:'SE',name:'Sweden',flag:'🇸🇪'},
+  {code:'NO',name:'Norway',flag:'🇳🇴'},
+  {code:'DK',name:'Denmark',flag:'🇩🇰'},
+  {code:'PL',name:'Poland',flag:'🇵🇱'},
+  {code:'PT',name:'Portugal',flag:'🇵🇹'},
+];
+
+function buildCountrySelect(selectId){
+  const el=document.getElementById(selectId);
+  if(!el)return;
+  el.innerHTML=COUNTRIES.map(c=>`<option value="${c.code}"${c.code===S.country?' selected':''}>${c.flag} ${c.name}</option>`).join('');
+}
+function onCountryChange(val){ S.country=val; }
 const AVATAR_COLORS=['#2563EB','#dc2626','#16a34a','#d97706','#9333ea','#0891b2','#db2777','#65a30d'];
 
 let loginMode='signin'; // 'signin' | 'signup'
@@ -1972,15 +2056,32 @@ function updateAuthUI(){
 function openProfilePage(){
   closeModal('modal-profile-menu');
   document.getElementById('profile-name-input').value=S.profile.name;
+  buildCountrySelect('profile-country-select');
   renderAvatarPicker();
   showPage('page-profile');
 }
 function renderAvatarPicker(){
   const grid=document.getElementById('avatar-grid');
   if(!grid)return;
-  grid.innerHTML=AVATAR_OPTIONS.map(a=>`<button class="avatar-opt${a===S.profile.avatar?' on':''}" style="background:${S.profile.color}" onclick="selectAvatar('${a}')" aria-label="Choose ${a} avatar" aria-pressed="${a===S.profile.avatar}">${a}</button>`).join('');
+  const categories=[
+    {label:'Cinema & Film', items:AVATAR_OPTIONS.slice(0,8)},
+    {label:'Characters', items:AVATAR_OPTIONS.slice(8,16)},
+    {label:'Space & Sci-Fi', items:AVATAR_OPTIONS.slice(16,24)},
+    {label:'Animals', items:AVATAR_OPTIONS.slice(24,32)},
+    {label:'Fun & Lifestyle', items:AVATAR_OPTIONS.slice(32)},
+  ];
+  grid.style.display='block';
+  grid.innerHTML=categories.map(cat=>`
+    <p style="font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin:14px 0 8px;">${cat.label}</p>
+    <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:4px;">
+      ${cat.items.map(a=>`
+        <button class="avatar-opt${a.icon===S.profile.avatar?' on':''}" style="background:${a.icon===S.profile.avatar?S.profile.color:'var(--surf2)'};border:2px solid ${a.icon===S.profile.avatar?S.profile.color:'var(--border)'};border-radius:10px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:all .15s;" onclick="selectAvatar('${a.icon}')" aria-label="Choose ${a.label} avatar" aria-pressed="${a.icon===S.profile.avatar}">
+          <span style="font-size:22px;">${a.icon}</span>
+          <span style="font-size:9px;color:${a.icon===S.profile.avatar?'#fff':'var(--dim)'};font-family:'Inter',sans-serif;letter-spacing:.3px;">${a.label}</span>
+        </button>`).join('')}
+    </div>`).join('');
   const colorRow=document.getElementById('color-grid');
-  if(colorRow) colorRow.innerHTML=AVATAR_COLORS.map(c=>`<button class="color-opt${c===S.profile.color?' on':''}" style="background:${c}" onclick="selectColor('${c}')" aria-label="Choose this color" aria-pressed="${c===S.profile.color}"></button>`).join('');
+  if(colorRow) colorRow.innerHTML=AVATAR_COLORS.map(c=>`<button class="color-opt${c===S.profile.color?' on':''}" style="background:${c};width:32px;height:32px;border-radius:50%;border:3px solid ${c===S.profile.color?'#fff':'transparent'};cursor:pointer;transition:all .15s;outline:${c===S.profile.color?'2px solid '+c:'none'};outline-offset:2px;" onclick="selectColor('${c}')" aria-label="Choose this color" aria-pressed="${c===S.profile.color}"></button>`).join('');
   const preview=document.getElementById('profile-preview-avatar');
   if(preview){preview.textContent=S.profile.avatar;preview.style.background=S.profile.color;}
 }
@@ -1995,6 +2096,8 @@ function selectColor(c){
 async function saveProfile(){
   const nameEl=document.getElementById('profile-name-input');
   S.profile.name=nameEl.value.trim()||'Movie Fan';
+  const countryEl=document.getElementById('profile-country-select');
+  if(countryEl) S.country=countryEl.value;
   updateAuthUI();
   if(S.userId){
     try{
@@ -2096,6 +2199,7 @@ buildFAQ();
 // ════════════════════════════════════════
 function initOnboard(){
   buildProgSegs();
+  buildCountrySelect('ob-country-select');
   buildServicePills();
   buildPillGroup('g-main',D.genres.main,S.genres,false);
   buildPillGroup('g-world',D.genres.world,S.genres,true);
